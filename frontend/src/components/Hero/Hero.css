@@ -1,0 +1,19 @@
+.hero-section {
+  background: linear-gradient(to right, #a8e063, #56ab2f);
+  color: white;
+  padding: 60px 0;
+  text-align: left;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.highlight {
+  background-color: #f9b208;
+  color: #333;
+  padding: 0 10px;
+  border-radius: 5px;
+}
