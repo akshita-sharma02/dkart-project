@@ -20,7 +20,7 @@ const HomePage = () => {
             if (minPrice) params.append('minPrice', minPrice);
             if (maxPrice) params.append('maxPrice', maxPrice);
 
-            const { data } = await axios.get(`http://localhost:5000/api/products?${params.toString()}`);
+            const { data } = await axios.get(`https://dkart-project.onrender.com/api/products?${params.toString()}`);
             setProducts(data);
         } catch (error) {
             console.error("Error fetching products", error);

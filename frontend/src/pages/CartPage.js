@@ -11,7 +11,7 @@ const CartPage = () => {
 
     const fetchCartItems = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/cart');
+            const { data } = await axios.get('https://dkart-project.onrender.com/api/cart');
             setCartItems(data);
         } catch (error) {
             console.error("Failed to fetch cart items", error);
@@ -28,7 +28,7 @@ const CartPage = () => {
 
     const handleQuantityChange = async (productId, newQuantity) => {
         try {
-            const { data } = await axios.put(`http://localhost:5000/api/cart/₹{productId}`, { quantity: newQuantity });
+            const { data } = await axios.put(`https://dkart-project.onrender.com/api/cart/₹{productId}`, { quantity: newQuantity });
             setCartItems(data);
         } catch (error) {
             console.error("Failed to update quantity", error);
@@ -37,7 +37,7 @@ const CartPage = () => {
 
     const handleRemove = async (productId) => {
         try {
-            const { data } = await axios.delete(`http://localhost:5000/api/cart/₹{productId}`);
+            const { data } = await axios.delete(`https://dkart-project.onrender.com/api/cart/₹{productId}`);
             setCartItems(data);
         } catch (error) {
             console.error("Failed to remove item", error);

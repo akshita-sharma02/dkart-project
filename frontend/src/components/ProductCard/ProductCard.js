@@ -21,7 +21,7 @@ const ProductCard = ({ product }) => {
 
     try {
       // Send a request to the backend to add this product to the user's cart
-      await axios.post('http://localhost:5000/api/cart', 
+      await axios.post('https://dkart-project.onrender.com/api/cart', 
         {
           productId: product._id,
           quantity: 1,
