@@ -42,7 +42,7 @@
 }
 
 .btn-add-to-cart {
-  background-color: #cb2f2c;
+  background-color: #28a745;
   color: white;
   border: none;
   padding: 12px 25px;
@@ -54,5 +54,5 @@
 }
 
 .btn-add-to-cart:hover {
-  background-color: #0fc9ea; /* A slightly darker green on hover */
+  background-color: #050a0b;
 }

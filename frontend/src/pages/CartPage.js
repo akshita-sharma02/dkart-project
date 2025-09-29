@@ -1,9 +1,9 @@
 // frontend/src/pages/CartPage.js
+
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-import Header from '../components/Header/Header';
 import './CartPage.css';
 
 const CartPage = () => {
@@ -11,11 +11,12 @@ const CartPage = () => {
     const [loading, setLoading] = useState(true);
     const { user } = useContext(AuthContext);
 
+    // Make sure this URL points to your deployed backend
     const API_URL = 'https://dkart-project.onrender.com/api';
 
     useEffect(() => {
         const fetchCartItems = async () => {
-            if (!user) return;
+            if (!user) return; // Don't fetch if the user is not logged in
             try {
                 const { data } = await axios.get(`${API_URL}/cart`);
                 setCartItems(data);
@@ -29,10 +30,10 @@ const CartPage = () => {
     }, [user]);
 
     const handleQuantityChange = async (productId, quantity) => {
-        if (quantity < 1) return;
+        // We allow quantity to be 0 or less, as the backend will handle removal
         try {
             const { data } = await axios.put(`${API_URL}/cart/${productId}`, { quantity });
-            setCartItems(data); // Update state with the entire updated cart from backend
+            setCartItems(data);
         } catch (error) {
             console.error('Failed to update quantity', error);
         }
@@ -41,29 +42,37 @@ const CartPage = () => {
     const handleRemoveItem = async (productId) => {
         try {
             const { data } = await axios.delete(`${API_URL}/cart/${productId}`);
-            setCartItems(data); // Update state with the updated cart
+            setCartItems(data);
         } catch (error) {
             console.error('Failed to remove item', error);
         }
     };
 
-    const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
+    const subtotal = cartItems.reduce((acc, item) => {
+        // Ensure product and price exist before calculation
+        if (item.product && item.product.price) {
+            return acc + item.quantity * item.product.price;
+        }
+        return acc;
+    }, 0);
 
-    if (loading) return <div>Loading your cart...</div>;
+    if (loading) {
+        return <div className="cart-container">Loading your cart...</div>;
+    }
 
     return (
-        <>
-            <Header />
-            <div className="cart-container">
-                <h1 className="cart-title">Your Shopping Cart</h1>
-                {cartItems.length === 0 ? (
-                    <div className="cart-empty">
-                        Your cart is empty. <Link to="/">Go Shopping</Link>
-                    </div>
-                ) : (
-                    <div className="cart-layout">
-                        <div className="cart-items-list">
-                            {cartItems.map((item) => (
+        <div className="cart-container">
+            <h1 className="cart-title">Your Shopping Cart</h1>
+            {cartItems.length === 0 ? (
+                <div className="cart-empty">
+                    Your cart is empty. <Link to="/">Go Shopping</Link>
+                </div>
+            ) : (
+                <div className="cart-layout">
+                    <div className="cart-items-list">
+                        {cartItems.map((item) => (
+                            // Check if item.product is not null before rendering
+                            item.product && (
                                 <div key={item.product._id} className="cart-item-card">
                                     <img src={item.product.image} alt={item.product.name} className="cart-item-image" />
                                     <div className="cart-item-details">
@@ -76,31 +85,31 @@ const CartPage = () => {
                                             className="quantity-input"
                                             value={item.quantity}
                                             onChange={(e) => handleQuantityChange(item.product._id, parseInt(e.target.value))}
-                                            min="1"
+                                            min="0" // Set min to 0 to allow removal by setting quantity
                                         />
                                         <button onClick={() => handleRemoveItem(item.product._id)} className="btn-remove">
                                             Remove
                                         </button>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="order-summary-card">
-                            <h2>Order Summary</h2>
-                            <div className="summary-row">
-                                <span>Subtotal</span>
-                                <span>₹{subtotal.toFixed(2)}</span>
-                            </div>
-                            <div className="summary-row total">
-                                <span>Total</span>
-                                <span>₹{subtotal.toFixed(2)}</span>
-                            </div>
-                            <button className="btn-checkout">Proceed to Checkout</button>
-                        </div>
+                            )
+                        ))}
                     </div>
-                )}
-            </div>
-        </>
+                    <div className="order-summary-card">
+                        <h2>Order Summary</h2>
+                        <div className="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹{subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="summary-row total">
+                            <span>Total</span>
+                            <span>₹{subtotal.toFixed(2)}</span>
+                        </div>
+                        <button className="btn-checkout">Proceed to Checkout</button>
+                    </div>
+                </div>
+            )}
+        </div>
     );
 };
 
