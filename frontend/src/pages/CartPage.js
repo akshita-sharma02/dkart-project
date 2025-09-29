@@ -1,69 +1,70 @@
+// frontend/src/pages/CartPage.js
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import AuthContext from '../context/AuthContext';
-import './CartPage.css';
 import { Link } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+import Header from '../components/Header/Header';
+import './CartPage.css';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const { user } = useContext(AuthContext);
 
-    const fetchCartItems = async () => {
-        try {
-            const { data } = await axios.get('https://dkart-project.onrender.com/api/cart');
-            setCartItems(data);
-        } catch (error) {
-            console.error("Failed to fetch cart items", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const API_URL = 'https://dkart-project.onrender.com/api';
 
     useEffect(() => {
-        if (user) {
-            fetchCartItems();
-        }
+        const fetchCartItems = async () => {
+            if (!user) return;
+            try {
+                const { data } = await axios.get(`${API_URL}/cart`);
+                setCartItems(data);
+            } catch (error) {
+                console.error('Failed to fetch cart items', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCartItems();
     }, [user]);
 
-    const handleQuantityChange = async (productId, newQuantity) => {
+    const handleQuantityChange = async (productId, quantity) => {
+        if (quantity < 1) return;
         try {
-            const { data } = await axios.put(`https://dkart-project.onrender.com/api/cart/₹{productId}`, { quantity: newQuantity });
-            setCartItems(data);
+            const { data } = await axios.put(`${API_URL}/cart/${productId}`, { quantity });
+            setCartItems(data); // Update state with the entire updated cart from backend
         } catch (error) {
-            console.error("Failed to update quantity", error);
+            console.error('Failed to update quantity', error);
         }
     };
 
-    const handleRemove = async (productId) => {
+    const handleRemoveItem = async (productId) => {
         try {
-            const { data } = await axios.delete(`https://dkart-project.onrender.com/api/cart/₹{productId}`);
-            setCartItems(data);
+            const { data } = await axios.delete(`${API_URL}/cart/${productId}`);
+            setCartItems(data); // Update state with the updated cart
         } catch (error) {
-            console.error("Failed to remove item", error);
+            console.error('Failed to remove item', error);
         }
     };
 
-    const calculateSubtotal = () => {
-        return cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2);
-    };
+    const subtotal = cartItems.reduce((acc, item) => acc + item.quantity * item.product.price, 0);
 
     if (loading) return <div>Loading your cart...</div>;
 
     return (
         <>
+            <Header />
             <div className="cart-container">
-                <h1>Your Shopping Cart</h1>
+                <h1 className="cart-title">Your Shopping Cart</h1>
                 {cartItems.length === 0 ? (
                     <div className="cart-empty">
-                        <p>Your cart is empty.</p>
-                        <Link to="/" className="btn-shop">Continue Shopping</Link>
+                        Your cart is empty. <Link to="/">Go Shopping</Link>
                     </div>
                 ) : (
-                    <div className="cart-content">
+                    <div className="cart-layout">
                         <div className="cart-items-list">
-                            {cartItems.map(item => (
-                                <div key={item.product._id} className="cart-item">
+                            {cartItems.map((item) => (
+                                <div key={item.product._id} className="cart-item-card">
                                     <img src={item.product.image} alt={item.product.name} className="cart-item-image" />
                                     <div className="cart-item-details">
                                         <h3>{item.product.name}</h3>
@@ -72,32 +73,29 @@ const CartPage = () => {
                                     <div className="cart-item-actions">
                                         <input
                                             type="number"
+                                            className="quantity-input"
                                             value={item.quantity}
                                             onChange={(e) => handleQuantityChange(item.product._id, parseInt(e.target.value))}
                                             min="1"
-                                            className="quantity-input"
                                         />
-                                        <button onClick={() => handleRemove(item.product._id)} className="btn-remove">Remove</button>
+                                        <button onClick={() => handleRemoveItem(item.product._id)} className="btn-remove">
+                                            Remove
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-
-                        <div className="cart-summary">
+                        <div className="order-summary-card">
                             <h2>Order Summary</h2>
                             <div className="summary-row">
                                 <span>Subtotal</span>
-                                <span>₹{calculateSubtotal()}</span>
+                                <span>₹{subtotal.toFixed(2)}</span>
                             </div>
                             <div className="summary-row total">
                                 <span>Total</span>
-                                <span>₹{calculateSubtotal()}</span>
+                                <span>₹{subtotal.toFixed(2)}</span>
                             </div>
-                            <Link to="/checkout" state={{ amount: calculateSubtotal() }}>
-                                <button className="btn-checkout">
-                                    Proceed to Checkout
-                                </button>
-                            </Link>
+                            <button className="btn-checkout">Proceed to Checkout</button>
                         </div>
                     </div>
                 )}
