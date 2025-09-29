@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Header from './components/Header/Header';
-import HomePage from './pages/HomePage'; // <-- THIS WAS THE MISSING LINE
+import HomePage from './pages/HomePage'; 
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CartPage from './pages/CartPage';
